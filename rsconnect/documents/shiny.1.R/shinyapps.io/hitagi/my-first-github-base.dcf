@@ -1,0 +1,14 @@
+name: my-first-github-base
+title: my-first-github-base
+username:
+account: hitagi
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5713984
+bundleId: 5607694
+url: https://hitagi.shinyapps.io/my-first-github-base/
+when: 1645579079.59383
+lastSyncTime: 1645579079.59383
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .RData|11.R|123123.R|data/changup_refined.csv|data/test.csv|data/train.csv|LICENSE|mycode.R|myfirstproject/app.R|myfirstproject/rsconnect/shinyapps.io/hitagi/myfirstproject.dcf|myfirstproject/server.R|myfirstproject/ui.R|myplot.jpg|myplot.png|README.md|shiny.2.R|titanic.html|titanic.Rmd|??????.pdf
