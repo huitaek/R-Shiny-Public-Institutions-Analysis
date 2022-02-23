@@ -12,7 +12,7 @@ server <- function(input, output) {
     infoBox(
       paste(input$years,"년", "신입사원 연봉 1위"),
       as.character(subset(data, (year==input$years)&new_sal==max(subset(data, year==input$years)['new_sal'], na.rm=TRUE))[1, 'institution']),
-      color = "blue", icon = icon("dollar")
+      color = "blue", icon = icon("dollar"), fill = TRUE
       
     )
   })
@@ -21,7 +21,7 @@ server <- function(input, output) {
     infoBox(
       paste(input$years,"년", "평균직원 연봉 1위"),
       as.character(subset(data, (year==input$years)&avg_sal==max(subset(data, year==input$years)['avg_sal'], na.rm=TRUE))[1, 'institution']),
-       color = "navy", icon = icon("money")
+       color = "navy", icon = icon("money"), fill = TRUE
     )
   })
   
@@ -29,7 +29,7 @@ server <- function(input, output) {
     infoBox(
       paste(input$years,"년", "평균근속 연수 1위"),
       as.character(subset(data, (year==input$years)&ser_year==max(subset(data, year==input$years)['ser_year'], na.rm=TRUE))[1, 'institution']),
-       color = "purple", icon = icon("heart")
+       color = "purple", icon = icon("heart"), fill = TRUE
     )
   })
   
@@ -37,7 +37,7 @@ server <- function(input, output) {
     infoBox(
       paste(input$years,"년", "잡플래닛 평점 1위"),
       as.character(subset(data, (year==input$years)&rate==max(subset(data, year==input$years)['rate'], na.rm=TRUE))[1, 'institution']),
-       color = "orange", icon = icon("star")
+       color = "orange", icon = icon("star"), fill = TRUE
     )
   })
 
