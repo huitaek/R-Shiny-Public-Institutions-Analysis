@@ -52,27 +52,31 @@ ui <- dashboardPage(skin = "purple",
                                               inline = TRUE))
                 ),
                 tabBox(
-                  title = "뉴뉴1",
-                  tabPanel("별점별",
-                  plotOutput("plot_rate", height = 300)
+                  title = "근속연수",
+                  tabPanel("평균연봉 ",
+                  plotOutput("plot_rate1", height = 300)
+                ),
+                tabPanel("신입초봉 ",
+                         plotOutput("plot_rate2", height = 300)
                 )
-              ),
+              )),
               fluidRow(
+                tabBox(
+                  title = "Title 1", 
+                  tabPanel("별점별",
+                  plotOutput("plot3", height = 300)
+                  ),
+                  tabPanel("뉴뉴",
+                  plotOutput("plot4", height = 300)
+                )),
                 box(
-                  title = "Title 1", width = 4, solidHeader = TRUE, status = "primary",
-                  plotOutput("plot3", height = 250)
-                ),
-                box(
-                  title = "Title 2", width = 4, solidHeader = TRUE, status = "primary",
-                  plotOutput("plot4", height = 250)
-                ),
-                box(
-                  title = "Title 1", width = 4, solidHeader = TRUE, status = "warning",
+                  title = "Title 1", solidHeader = TRUE, status = "warning",
                   selectInput(inputId = "companysearch","Label123123", 
                               choices = distinct(data, institution)), 
-                  plotOutput("plot5", height = 250)
+                  plotOutput("plot5", height = 300)
                 )
               )
+            
       ),
       
       # Second tab content
@@ -87,7 +91,7 @@ ui <- dashboardPage(skin = "purple",
       ),
       tabItem(tabName = "page4",
               h2("page4")
-      )
+      
       )
     )
   )
