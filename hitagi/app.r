@@ -1,6 +1,6 @@
 library(shiny)
 library(rsconnect)
 
-rsconnect::deployApp('./app.R')
+rsconnect::deployApp('./hitagi/')
 
 shinyApp(ui = ui, server = server)

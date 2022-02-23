@@ -51,7 +51,7 @@ server <- function(input, output) {
       coord_cartesian(xlim = c(25000, 115000), ylim = c(20000, 55000)) +
       guides(color = "none", size = "none") +
       geom_smooth(method=lm , color="cyan", se=FALSE) + 
-      theme_minimal() + scale_x_log10()+ scale_y_log10()
+      theme_minimal()
   }, res = 96)
   
   output$plot2 <- renderPlot({
@@ -95,5 +95,17 @@ server <- function(input, output) {
            mapping = aes(x = year, y = avg_sal)) + 
       geom_bar(stat = "identity") + geom_line() + geom_point()
   }, res = 96)
-
+  
+  output$plot_rate <- renderPlot({
+    
+    input_year <- input$years
+    data <- subset(data, year==input_year)
+    selcon <- input$selectgongtype
+    
+    ggplot(data=subset(data, gongtype %in% c(selcon)), aes(x = rate, y = ser_year)) + 
+      geom_point(mapping = aes(color = gongtype), alpha=0.4, position = "jitter") +
+      coord_cartesian(xlim = c(25000, 115000), ylim = c(20000, 55000)) +
+      guides(color = "none", size = "none") + 
+      theme_minimal()
+  }, res = 96)
 }

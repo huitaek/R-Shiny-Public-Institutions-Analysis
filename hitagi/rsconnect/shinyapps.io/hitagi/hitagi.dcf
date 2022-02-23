@@ -5,9 +5,7 @@ account: hitagi
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 5719119
-bundleId: 5611379
+bundleId: 5611445
 url: https://hitagi.shinyapps.io/hitagi/
-when: 1645650602.61966
-lastSyncTime: 1645650602.61966
-asMultiple: FALSE
-asStatic: FALSE
+when: 1645651754.40026
+lastSyncTime: 1645651754.40026

@@ -5,9 +5,6 @@ data[data == 0] <- NA
 data$ministry = as.factor(data$ministry)
 data$gongtype = as.factor(data$gongtype)
 
-data[1, 'institution']
-max(subset(data, year==2017)['new_sal'], na.rm=TRUE)
-?max
 str(data)
 
 data$rate <- reorder(data$rate, levels = data$rate, orderd=TRUE)
@@ -17,3 +14,18 @@ ggplot(data, aes(x=reorder(gongtype, -rate), y=rate)) +
 
 ggplot(data, aes(x=reorder(ministry, -avg_sal), y=avg_sal)) + 
   geom_jitter()
+
+ggplot(data, aes(x=rate, y=ser_year)) + 
+  geom_point()
+
+ggplot(data, aes(x=avg_sal, y=rate)) + 
+  geom_point()
+
+ggplot(data, aes(x=new_sal, y=rate)) + 
+  geom_point()
+
+ggplot(data, aes(x=avg_sal, y=ser_year)) + 
+  geom_point()
+
+ggplot(data, aes(x=new_sal, y=ser_year)) + 
+  geom_point()

@@ -35,7 +35,7 @@ ui <- dashboardPage(skin = "purple",
               ),
               fluidRow(
                 tabBox(
-                  title = "뉴뉴",
+                  title = "평균연봉 & 신입초임",
                   tabPanel("기관유형별",
                   plotOutput("plot1", height = 300),
                   checkboxGroupInput(inputId="selectgongtype",
@@ -51,8 +51,10 @@ ui <- dashboardPage(skin = "purple",
                                               selected = levels(data$ministry),
                                               inline = TRUE))
                 ),
-                box(
-                  title = "뉴뉴1", status = "primary", solidHeader = TRUE,
+                tabBox(
+                  title = "뉴뉴1",
+                  tabPanel("별점별",
+                  plotOutput("plot_rate", height = 300)
                 )
               ),
               fluidRow(
@@ -66,7 +68,8 @@ ui <- dashboardPage(skin = "purple",
                 ),
                 box(
                   title = "Title 1", width = 4, solidHeader = TRUE, status = "warning",
-                  textInput("companysearch", "Label"), 
+                  selectInput(inputId = "companysearch","Label123123", 
+                              choices = distinct(data, institution)), 
                   plotOutput("plot5", height = 250)
                 )
               )
@@ -84,6 +87,7 @@ ui <- dashboardPage(skin = "purple",
       ),
       tabItem(tabName = "page4",
               h2("page4")
+      )
       )
     )
   )
