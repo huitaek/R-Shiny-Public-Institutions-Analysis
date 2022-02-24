@@ -48,7 +48,7 @@ server <- function(input, output) {
     data <- subset(data, year==input_year)
     selcon <- input$selectgongtype
     
-    ggplot(data=subset(data, gongtype %in% c(selcon)), aes(x = avg_sal, y = new_sal, size = ser_year, fill=gongtype)) + 
+    ggplot(data= data<- subset(data, gongtype %in% c(selcon)), aes(x = avg_sal, y = new_sal, size = ser_year, fill=gongtype)) + 
       geom_point(mapping = aes(shape=21, color="black"), alpha=0.5, position = "jitter")+ scale_shape_identity()  +
       coord_cartesian(xlim = c(25000, 115000), ylim = c(20000, 55000)) +
       guides(color = "none", size = "none") +
@@ -100,7 +100,7 @@ server <- function(input, output) {
     
     input_year <- input$years
     data <- subset(data, year==input_year)
-    selcon <- input$selectgongtype
+    selcon <- input$selectgongtype2
     
     ggplot(data=subset(data, gongtype %in% c(selcon)), aes(x = ser_year/12, y = avg_sal, fill=gongtype, size=rate)) + 
       geom_point(mapping = aes(shape=21, color="black"), alpha=0.4, position = "jitter") + scale_shape_identity()  +
@@ -113,7 +113,7 @@ server <- function(input, output) {
     
     input_year <- input$years
     data <- subset(data, year==input_year)
-    selcon <- input$selectgongtype
+    selcon <- input$selectgongtype3
     
     ggplot(data=subset(data, gongtype %in% c(selcon)), aes(x = ser_year/12, y = new_sal, fill=gongtype, size=rate)) + 
       geom_point(mapping = aes(shape=21, color="black"), alpha=0.4, position = "jitter") + scale_shape_identity()  +
@@ -121,4 +121,39 @@ server <- function(input, output) {
       guides(color = "none", size = "none") + theme_minimal() + scale_size(range = c(0.001, 5), name="Population (M)")+
       scale_fill_viridis(discrete=TRUE, guide=FALSE, option="D")
   }, res = 96)
+  
+  
+  output$rateplot1 <- renderPlot({
+    
+    input_year <- 2021
+    data <- subset(data, year==input_year)
+    
+    ggplot(data=data, aes(x = rate, y = new_sal, fill=gongtype)) + 
+      geom_point(mapping = aes(shape=21, color="black"), alpha=0.4, position = "jitter") + scale_shape_identity()  +
+      coord_cartesian(xlim = c(0, 5), ylim = c(20000, 55000)) +
+      guides(color = "none", size = "none") + theme_minimal() + scale_size(range = c(0.001, 5), name="Population (M)")+
+      scale_fill_viridis(discrete=TRUE, guide=FALSE, option="D")
+  }, res = 96)
+  
+  output$rateplot2 <- renderPlot({
+    
+    input_year <- 2021
+    data <- subset(data, year==input_year)
+    
+    ggplot(data=data, aes(x = rate, y = avg_sal, fill=gongtype)) + 
+      geom_point(mapping = aes(shape=21, color="black"), alpha=0.4, position = "jitter") + scale_shape_identity()  +
+      coord_cartesian(xlim = c(0, 5), ylim = c(20000, 115000)) +
+      guides(color = "none", size = "none") + theme_minimal() + scale_size(range = c(0.001, 5), name="Population (M)")+
+      scale_fill_viridis(discrete=TRUE, guide=FALSE, option="D")
+  }, res = 96)
+  
+  output$histo1 <- renderPlot({
+    input_year <- input$years
+    data <- subset(data, year==input_year)
+  ggplot(data) + 
+    geom_histogram(aes(x=new_sal), col='white',fill='red3', alpha=0.3, bin = 70)+
+    geom_histogram(aes(x=avg_sal), col='white',fill='blue3', alpha=0.3, bin= 70)+
+    geom_histogram(aes(x=ser_year*100), col='white',fill='forestgreen', alpha=0.3, bin= 70)+
+    coord_cartesian(xlim = c(0, 115000), ylim = c(0, 90))+ theme_minimal()
+  })
 }

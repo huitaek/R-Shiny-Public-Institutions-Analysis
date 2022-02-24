@@ -1,4 +1,5 @@
 library(readxl)
+install.packages("ggplotly")
 
 data <- read.csv("./data/gonggiup.csv", na.strings = c("", 0, " ", NA))
 data[data == 0] <- NA
@@ -6,8 +7,6 @@ data$ministry = as.factor(data$ministry)
 data$gongtype = as.factor(data$gongtype)
 
 str(data)
-
-data$rate <- reorder(data$rate, levels = data$rate, orderd=TRUE)
 
 ggplot(data, aes(x=reorder(gongtype, -rate), y=rate)) + 
   geom_jitter()
@@ -84,3 +83,42 @@ ggplot(data, aes(x=avg_sal)) +
 datatemp <- subset(data, year==2017)
 ggplot(data, aes(x=new_sal)) + 
   geom_histogram()
+
+
+
+library(ggplot2)
+library(gganimate)
+
+
+ggplot(data) + 
+  geom_histogram(aes(x=new_sal),  col='red', fill='red', alpha=0.2)+
+  geom_histogram(aes(x=avg_sal), col='blue', fill='blue', alpha=0.2)
+
+
+
+  input_year <- input$years
+  data_new <- subset(data, year==input_year)
+  
+  library(dplyr)
+  data_new <- arrange(data, desc(new_sal))
+    ggplot(data = head(data_new), 
+         mapping = aes(x = reorder(institution, -new_sal), y = new_sal)) + 
+    geom_bar(stat = "identity")+ 
+      transition_time(year) +
+      ease_aes('linear') 
+
+install.packages("ggpubr")
+library(ggpubr)
+a1<- ggplot(data, aes(x=gongtype, y=new_sal)) + 
+  geom_point(position = "jitter") + transition_time(year) +
+  ease_aes('linear')
+
+a2 <- ggplot(data, aes(x=gongtype, y=avg_sal)) + 
+  geom_point(position = "jitter") + transition_time(year) +
+  ease_aes('linear')
+
+ggarrange(a1, a2, ncol=2,nrow=1)
+
+
+anim_save("271-ggplot2-animated-gif-chart-with-gganimate1.gif")
+
