@@ -1,0 +1,490 @@
+# Project2. House Prices - Advanced Regression Techniques
+
+## 1. EDA와 시각화를 통해 데이터를 이해하시오.
+```{r}
+
+train <- read.csv("./q2/train.csv")
+train
+str(train)
+summary(train)
+head(train)
+```
+
+```{r}
+test <- read.csv("./q2/test.csv")
+test
+str(test)
+summary(test)
+head(test)
+```
+
+
+```{r}
+sample_submission <- read.csv("./q2/sample_submission.csv")
+sample_submission
+str(sample_submission)
+summary(sample_submission)
+head(sample_submission)
+```
+
+1. train
+row 1460, columns 81
+2. test
+row 1459, columns 80
+3. sample_submission
+row 1459, columns 2
+
+가격 예측을 위한 데이터셋
+test에는 가격 컬럼이 없고 sample에 ID와 함께 가격이 있음.
+데이터는 train과 test 데이터가 50:50 
+
+
+### 결측치 확인
+```{r}
+colSums(is.na(train))
+colSums(is.na(test))
+```
+ Train
+LotFrontage   259 
+Alley         1369
+MasVnrType    8
+MasVnrArea    8
+BsmtQual      37
+BsmtCond      37
+BsmtExposure  38
+BsmtFinType1  37
+BsmtFinType2  38
+Electrical    1
+FireplaceQu   690
+GarageType    81
+GarageYrBlt   81
+GarageFinish  81
+GarageQual    81
+GarageCond    81
+PoolQC        1453
+Fence         1179
+MiscFeature   1406
+
+ Test
+MSZoning      4
+LotFrontage   227
+Alley         1352
+Utilities     2
+Exterior1st   1
+Exterior2nd   1
+MasVnrType    16
+MasVnrArea    15
+BsmtQual      44
+BsmtCond      45
+BsmtExposure  44
+BsmtFinType1  42
+BsmtFinSF1    1
+BsmtFinType2  42
+BsmtFinSF2    1
+BsmtUnfSF     1
+TotalBsmtSF   1
+BsmtFullBath  2
+BsmtHalfBath  2
+KitchenQual   1
+Functional    2
+FireplaceQu   730
+GarageType    76
+GarageYrBlt   78
+GarageFinish  78
+GarageCars    1
+GarageArea    1
+GarageQual    78
+GarageCond    78
+PoolQC        1456
+Fence         1169
+MiscFeature   1408
+SaleType      1
+
+MSSubClass : 주거 유형 int
+MSZoning : 주택이 있는 구역 정보 object
+LotFrontage : 전면부지(집에서 도로까지 거리(feet)) float
+LotArea : 부지면적 int
+Street : 집까지 이어지는 길의 형태 object
+Alley : 집에 접근하는 골목 형태 object
+Lotshape : 집의 형태 object
+LandContour : 평탄도 object
+Utilities : 사용 가능한 편의시설 object
+LotConfig : 도로와 인접 형태 object
+LandSlope : 경사 object
+Neighborhood : 도시 경계로부터 물리적 위치 object
+Condition1 : 집 주변 간선도로, 철도 인접 여부 object
+Condition2 : 집 주변 1 외 추가 object
+BldgType : 주거 유형 (단독, 다세대) object
+https://mazdah.tistory.com/883
+
+
+
+
+결측치가 많은 컬럼 제거
+```{r}
+# 제거할 컬럼   결측치
+# Alley         1369
+# FireplaceQu   690
+# PoolQC        1453
+# Fence         1179
+# MiscFeature   1406
+head(train)
+df_train <- subset(train, select=-c(Alley, FireplaceQu, PoolQC, Fence, MiscFeature))
+df_train
+str(df_train) # 76개 컬럼 # 5개 제거됨 (ID, price 제외 74개 변수)
+summary(df_train)
+head(df_train)
+```
+
+
+```{r}
+layout(matrix(c(1:8), 2, 4, byrow = TRUE))
+hist(df_train$MSSubClass,
+     border=F)
+hist(df_train$LotFrontage,
+     border=F)
+hist(df_train$LotArea,
+     border=F)
+hist(df_train$OverallQual,
+     border=F)
+hist(df_train$OverallCond, 
+     border=F)
+hist(df_train$YearBuilt, 
+     border=F)
+hist(df_train$YearRemodAdd, 
+     border=F)
+hist(df_train$MasVnrArea, 
+     border=F)
+```
+
+```{r}
+layout(matrix(c(1:8), 2, 4, byrow = TRUE))
+hist(df_train$BsmtFinSF1, 
+     border=F)
+hist(df_train$BsmtFinSF2,
+     border=F)
+hist(df_train$BsmtUnfSF, 
+     border=F)
+hist(df_train$TotalBsmtSF, 
+     border=F)
+hist(df_train$X1stFlrSF, 
+     border=F)
+hist(df_train$X2ndFlrSF, 
+     border=F)
+hist(df_train$LowQualFinSF,
+     border=F)
+hist(df_train$GrLivArea, 
+     border=F)
+```
+
+```{r}
+layout(matrix(c(1:8), 2, 4, byrow = TRUE))
+hist(df_train$BsmtFullBath, 
+     border=F)
+hist(df_train$BsmtHalfBath, 
+     border=F)
+hist(df_train$FullBath, 
+     border=F)
+hist(df_train$HalfBath, 
+     border=F)
+hist(df_train$BedroomAbvGr, 
+     border=F)
+hist(df_train$KitchenAbvGr, 
+     border=F)
+hist(df_train$TotRmsAbvGrd, 
+     border=F)
+hist(df_train$Fireplaces, 
+     border=F)
+```
+
+```{r}
+layout(matrix(c(1:8), 2, 4, byrow = TRUE))
+hist(df_train$GarageYrBlt, 
+     border=F)
+hist(df_train$GarageCars, 
+     border=F)
+hist(df_train$GarageArea, 
+     border=F)
+hist(df_train$WoodDeckSF, 
+     border=F)
+hist(df_train$OpenPorchSF, 
+     border=F)
+hist(df_train$EnclosedPorch,
+     border=F)
+hist(df_train$X3SsnPorch,
+     border=F)
+hist(df_train$ScreenPorch,
+     border=F)
+```
+
+```{r}
+layout(matrix(c(1:8), 2, 4, byrow = TRUE))
+hist(df_train$PoolArea,
+     border=F)
+hist(df_train$MiscVal,
+     border=F)
+hist(df_train$MoSold, 
+     border=F)
+hist(df_train$YrSold, 
+     border=F)
+hist(df_train$SalePrice, 
+     border=F)
+```
+```{r}
+# install.packages('PerformanceAnalytics')
+# install.packages('corrplot')
+
+library(PerformanceAnalytics)
+library(corrplot)
+
+df2_train <- subset(df_train, select=c(MSSubClass, LotFrontage, LotArea, OverallQual, OverallCond, 
+                                       YearBuilt, YearRemodAdd, MasVnrArea, BsmtFinSF1, BsmtFinSF2,
+                                       BsmtUnfSF, TotalBsmtSF, X1stFlrSF, X2ndFlrSF, LowQualFinSF, 
+                                       GrLivArea, BsmtFullBath, BsmtHalfBath, FullBath, HalfBath, 
+                                       BedroomAbvGr, KitchenAbvGr, TotRmsAbvGrd, Fireplaces, 
+                                       GarageYrBlt, GarageCars, GarageArea, WoodDeckSF, OpenPorchSF, 
+                                       EnclosedPorch, X3SsnPorch, ScreenPorch, PoolArea, MiscVal, 
+                                       MoSold, YrSold, SalePrice))
+
+
+heatmap(abs(cor(df2_train)),
+        main = 'Correlation Heatmap (Abs)',
+        Colv = NA, 
+        Rowv = NA)
+
+abs(cor(df2_train))
+
+```
+
+SalePrice 와 가장 높은 상관계수를 가지는 컬럼 OverallQual 0.79098160
+OverallQual - 집의 전체 재료와 마감
+
+## 2. 다양한 선형 회귀분석 방법을 적용하시오.
+```{r}
+## 단순 선형 회귀 분석
+reg.simple <- lm(SalePrice ~ OverallQual, data=df2_train)
+reg.simple
+summary(reg.simple)
+plot(SalePrice ~ OverallQual, data=df2_train)
+abline(coef(reg.simple))
+```
+R-squared 0.6257 / p-value < 2.2e-16
+추정 SalePrice = 45435.8*OverallQual -96206.08
+
+```{r}
+### 다항 회귀분석 polynomial regression 
+library(dplyr)
+reg.poly <- lm(SalePrice ~ OverallQual + I(OverallQual^2), data=df2_train)
+reg.poly
+summary(reg.poly)
+plot(SalePrice ~ OverallQual, data=df2_train)
+lines(arrange(data.frame(df2_train$OverallQual, fitted(reg.poly)),
+              df2_train$OverallQual), col="cornflowerblue", lwd=2)
+```
+Adjusted R-squared : 0.678 / p-value < 2.2e-16
+추정 SalePrice = 6676.3 OverallQual^2 -38006.5 OverallQual + 151603.8
+
+
+
+
+```{r}
+### 다중 회귀분석 multiple linear regression 
+library(car)
+st <- select(df2_train, GrLivArea, TotalBsmtSF, OverallQual, 
+            OverallCond, LotArea, YearBuilt, SalePrice)
+scatterplotMatrix(st, pch=19, col="blue", cex=1.2,
+                  regLine=list(method=lm, lty=1, lwd=2, col="salmon"),
+                  smooth=list(smoother=loessLine, spread=F,
+                              lty.smooth=1, lwd.smooth=3, col.smooth="green"),
+                  main="Multiple linear regression")
+
+```
+
+
+
+```{r}
+st.lm <- lm(SalePrice ~ ., data=st)
+summary(st.lm)
+library(stargazer)
+stargazer(st.lm, type="text", no.space=T)
+library(QuantPsyc)
+lm.beta(st.lm)
+```
+
+
+## 3. 선형 회귀모델을 피팅하시오. (step, 규제화 등)
+```{r}
+library(dplyr)
+# step
+#st <- select(df2_train, GrLivArea, TotalBsmtSF, OverallQual, 
+#            OverallCond, LotArea, YearBuilt, SalePrice)
+lm <- lm(formula=SalePrice~., data=st)
+summary(lm)
+par(mfrow=c(2,2))
+plot(lm)
+
+# step(), 회귀검정
+step_lm <- step(lm, direction = 'both')
+summary(step_lm)
+par(mfrow=c(2,2))
+
+
+
+```
+회귀모델 진단
+- 회귀분석의 가정과 진단
+-- OLS 회귀분석을 위해서는 관측값은 다음과 같은 조건을 충족해야 함 (OLS-최소자승법 : 잔차의 제곱의 합을 최소로 하는 방법)
+1. 선형성 linearity
+ 독립변수와 종속변수의 관계는 선형
+2. 정규성 normality
+ 독립변수값에 대응되는 종속변수값들은 정규분포를 따른다.
+3. 등분산성 equality of variance
+ 종복변수값들의 분포는 모두 동일한 분산을 갖는다.
+4. 독립성 independence
+ 모든 관측값들은 독립이다.
+
+1. 선형성 Residuals vs Fitted (좌상단 그래프)
+ 독립변수과 종속변수 관계가 서로 선형이라면,
+ 잔차와 예측치 사이에 어떤 체계적인 관계가 있으면 안됨.
+2. 정규성 Normal Q-Q (우상단 그래프)
+ 표준화된 잔차의 plot
+ 정규성 가정을 만족한다면 45도 각도의 직선위에 있어야 함
+3. 등분산성 Scale-Location (좌하단 그래프)
+ 분산이 일정하다면 수평선 주위에 random band 형태로 나타나야함
+4. 독립성
+ 독립성은 그래프로는 알기 힘들고 데이터를 어떻게 모았는지 알아야함
+5. Residulals vs Leverage (우하단 그래프)
+ 주의를 기울여야하는 개개의 관찰치에 대한 정보
+  이상치 outlier
+ - 회귀모형으로 잘 예측되지 않는 관측치
+  큰 지레점 high leverage point 
+ - 비정상적인 예측변수의 값에 의한 관측치
+  영향관측치 influential observation
+ - 통계 모형 계수 결정에 불균형한 영향을 미치는 관측치
+ - Cook's distance로 관측 가능함
+
+
+```{r}
+# 규제화 (정규화 Regularization) 
+# 가중치 규제 -> 가중치의 값이 커지지 않도록 제한 -> 몇개의 데이터에 집착하지 않음 -> 일반화 성능 올라감
+
+# 릿지 회귀 Ridge Regression
+library(glmnet)
+df3_train <- na.omit(df2_train)
+df3_train <- subset(df3_train, select=-c(GrLivArea, TotalBsmtSF)) # NA 제거
+X = model.matrix(SalePrice ~ ., df3_train)[, -1]
+y = df3_train$SalePrice
+
+fit = lm(SalePrice ~ ., df3_train)
+coef(fit)
+
+sum(abs(coef(fit)[-1]))
+
+par(mfrow = c(1, 2))
+fit_ridge = glmnet(X, y, alpha = 0) # alpha 가 1이면 라소, 0~1 사이 값이면 일래스틱넷
+plot(fit_ridge)
+plot(fit_ridge, xvar = "lambda", label = TRUE)
+
+fit_ridge_cv = cv.glmnet(X, y, alpha = 0)
+plot(fit_ridge_cv)
+coef(fit_ridge_cv)
+coef(fit_ridge_cv, s = "lambda.min")
+sum(coef(fit_ridge_cv, s = "lambda.min")[-1] ^ 2)
+coef(fit_ridge_cv, s = "lambda.1se")
+sum(coef(fit_ridge_cv, s = "lambda.1se")[-1] ^ 2)
+predict(fit_ridge_cv, X, s = "lambda.min")
+predict(fit_ridge_cv, X)
+mean((y - predict(fit_ridge_cv, X)) ^ 2)
+sqrt(fit_ridge_cv$cvm)
+sqrt(fit_ridge_cv$cvm[fit_ridge_cv$lambda == fit_ridge_cv$lambda.min])
+sqrt(fit_ridge_cv$cvm[fit_ridge_cv$lambda == fit_ridge_cv$lambda.1se]) 
+
+```
+
+Ridge회귀는 변수가 많고 계수의 크기가 거의 동일할 때 성능이 좋다
+Lasso회귀는 변수가 적고 상당히 큰 계수를 가질 때 잘 작동한다
+규제화 페널티를 Ridge는 잔차의 제곱, Lasso는 절대값으로 주었기에 가중치에 차이가 있다.
+
+
+```{r}
+# 규제화 (정규화 Regularization) 
+# 가중치 규제 -> 가중치의 값이 커지지 않도록 제한 -> 몇개의 데이터에 집착하지 않음 -> 일반화 성능 올라감
+
+# Lasso 라소
+par(mfrow = c(1, 2))
+fit_lasso = glmnet(X, y, alpha = 1)
+plot(fit_lasso)
+plot(fit_lasso, xvar = "lambda", label = TRUE)
+
+fit_lasso_cv = cv.glmnet(X, y, alpha = 1)
+plot(fit_lasso_cv)
+
+coef(fit_lasso_cv)
+coef(fit_lasso_cv, s = "lambda.min")
+sum(coef(fit_lasso_cv, s = "lambda.min")[-1] ^ 2)
+coef(fit_lasso_cv, s = "lambda.1se")
+sum(coef(fit_lasso_cv, s = "lambda.1se")[-1] ^ 2)
+
+predict(fit_lasso_cv, X, s = "lambda.min")
+predict(fit_lasso_cv, X)
+mean((y - predict(fit_lasso_cv, X)) ^ 2)
+
+sqrt(fit_lasso_cv$cvm)
+sqrt(fit_lasso_cv$cvm[fit_lasso_cv$lambda == fit_lasso_cv$lambda.min])
+sqrt(fit_lasso_cv$cvm[fit_lasso_cv$lambda == fit_lasso_cv$lambda.1se]) 
+
+```
+
+```{r}
+# 규제화 (정규화 Regularization) 
+# 가중치 규제 -> 가중치의 값이 커지지 않도록 제한 -> 몇개의 데이터에 집착하지 않음 -> 일반화 성능 올라감
+
+# broom
+library(broom)
+tidy(df3_train)
+
+glance(df3_train)
+
+```
+
+
+```{r}
+# 규제화 (정규화 Regularization) 
+# 가중치 규제 -> 가중치의 값이 커지지 않도록 제한 -> 몇개의 데이터에 집착하지 않음 -> 일반화 성능 올라감
+
+# Simulated Data, p>n 시뮬레이션
+set.seed(1234)
+n = 1000
+p = 5500
+X = replicate(p, rnorm(n = n))
+beta = c(1, 1, 1, rep(0, 5497))
+z = X %*% beta
+prob = exp(z) / (1 + exp(z))
+y = as.factor(rbinom(length(z), size = 1, prob = prob))
+library(glmnet)
+fit_cv = cv.glmnet(X, y, family = "binomial", alpha = 1)
+plot(fit_cv)
+head(coef(fit_cv), n = 10)
+
+fit_1se = glmnet(X, y, family = "binomial", lambda = fit_cv$lambda.1se)
+which(as.vector(as.matrix(fit_1se$beta)) != 0)
+
+par(mfrow = c(1, 2))
+plot(glmnet(X, y, family = "binomial"))
+plot(glmnet(X, y, family = "binomial"), xvar = "lambda")
+
+library(caret)
+cv_5 = trainControl(method = "cv", number = 5)
+lasso_grid = expand.grid(alpha = 1, 
+                         lambda = c(fit_cv$lambda.min, fit_cv$lambda.1se))
+lasso_grid
+
+sim_data = data.frame(y, X)
+fit_lasso = train(
+  y ~ ., data = sim_data,
+  method = "glmnet",
+  trControl = cv_5,
+  tuneGrid = lasso_grid
+)
+fit_lasso$results
+```
