@@ -9,7 +9,14 @@ data$gongtype = as.factor(data$gongtype)
 str(data)
 
 ggplot(data, aes(x=reorder(gongtype, -rate), y=rate)) + 
-  geom_jitter()
+  geom_jitter(aes(color=ministry, size=ser_year/12), alpha=0.6) + 
+  scale_size(range = c(0.00001, 5))+
+  guides(color = "none", size = "none")
+
+ggplot(data, aes(x=reorder(ministry, -rate), y=rate)) + 
+  geom_jitter(aes(color=ministry))+
+  coord_flip()+
+  guides(color = "none", size = "none")
 
 ggplot(data, aes(x=reorder(ministry, -avg_sal), y=avg_sal)) + 
   geom_jitter()
@@ -33,12 +40,6 @@ ggplot(data, aes(x=avg_sal, y=rate)) +
 ggplot(data, aes(x=new_sal, y=rate)) + 
   geom_point()
 
-ggplot(data, aes(x=avg_sal, y=ser_year)) + 
-  geom_point()
-
-ggplot(data, aes(x=new_sal, y=ser_year)) + 
-  geom_point()
-
 # 트리맵
 library(treemap)
 treemap(treem<- as.data.frame(table(data$gongtype)),
@@ -46,42 +47,33 @@ treemap(treem<- as.data.frame(table(data$gongtype)),
         vSize="Freq",
         type="index"
 )
+par(mfrow=c(1,1))
 
 # 레이더 차트
-install.packages("fmsb")
+#install.packages("fmsb")
 library(fmsb)
-input_year <- 2017
-data1 <- subset(data, (year==input_year)&(institution=='한국과학기술원'))
-radardata <- data1[c("new_sal", "avg_sal", "ser_year", "rate")]
-colnames(radardata) <- c("신입연봉", "평균연봉", "평균근속", "평균별점")
-radardata$신입연봉 <- radardata$신입연봉/5000
-radardata$평균연봉 <- radardata$평균연봉/10000
-radardata$평균근속 <- radardata$평균근속/12
-radardata$평균별점 <- radardata$평균별점*2
-radardata <- rbind(rep(20,10) , rep(0,10) , radardata)
-radarchart(radardata,
-           pcol=rgb(0.2,0.5,0.5,0.9) , pfcol=rgb(0.2,0.5,0.5,0.5) , plwd=4)
+
 
 
 # 연도별로 변화하하는거 대시보드에 넣으면 좋을듯?
 # 그리고 
 # 잡플래닛 점수 분포
 datatemp <- subset(data, year==2017)
-ggplot(data, aes(x=rate)) + 
+ggplot(datatemp, aes(x=rate)) + 
   geom_histogram()
 
 # 근속연수 분포
 datatemp <- subset(data, year==2017)
-ggplot(data, aes(x=ser_year/12)) + 
+ggplot(datatemp, aes(x=ser_year/12)) + 
   geom_histogram()
 
 # 평균연봉 분포 
 datatemp <- subset(data, year==2017)
-ggplot(data, aes(x=avg_sal)) + 
+ggplot(datatemp, aes(x=avg_sal)) + 
   geom_histogram() + geom_histogram()
 # 초봉 분포 
 datatemp <- subset(data, year==2017)
-ggplot(data, aes(x=new_sal)) + 
+ggplot(datatemp, aes(x=new_sal)) + 
   geom_histogram()
 
 
@@ -121,4 +113,18 @@ ggarrange(a1, a2, ncol=2,nrow=1)
 
 
 anim_save("271-ggplot2-animated-gif-chart-with-gganimate1.gif")
+
+
+# Library
+library(ggplot2)
+
+# create a dataset
+
+# Most basic violin chart
+ggplot(data, aes(x=gongtype, y=avg_sal, color=gongtype, fill=gongtype)) + # fill=name allow to automatically dedicate a color for each group
+  geom_violin() +
+  scale_fill_viridis(discrete=TRUE) +
+  scale_color_viridis(discrete=TRUE) +    
+  theme(legend.position="none") +
+  coord_flip()
 

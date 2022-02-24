@@ -59,8 +59,11 @@ complete.cases(df)
 airquality
 df <- airquality[complete.cases(airquality), ]
 
+df <- iris[1:100, ]
 df
-
+str(df)
+df$Species <- as.numeric(df$Species)
+glm(Species~., data=df)
 
 
 
