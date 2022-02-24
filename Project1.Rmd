@@ -33,7 +33,7 @@ age 열에만 177개의 결측치가 있음
 
 ## 데이터 전처리
 
-```{r, echo=FALSE}
+```{r}
 
 # 나이 결측값은 평균값으로
 train[is.na(train$Age),]$Age = as.integer(mean(train$Age,na.rm=TRUE))
