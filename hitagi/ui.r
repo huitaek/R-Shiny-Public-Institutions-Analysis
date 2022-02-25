@@ -2,8 +2,14 @@ library(shiny)
 library(shinydashboard)
 library(tidyverse)
 
-ui <- dashboardPage(skin = "purple",
-                    
+
+# 틈틈히 리팩토링 해보겠습니다...! + 샤이니 퍼블리싱 시도
+# Hitagi.R에서 데이터셋 불러온 뒤 실행해야합니다. 이것도 해결해보겠습니다.
+
+
+
+ui <- dashboardPage(
+  skin = "purple",
   dashboardHeader(
     title=tags$b("공공기관 데이터 분석")
     ),
@@ -51,7 +57,7 @@ ui <- dashboardPage(skin = "purple",
                                      inline = TRUE)),
                   tabPanel("주무부처별",
                            plotOutput("plot2", height = 300,
-                              hover = "plot_hover2"),
+                              hover = "plot_hover2"), # 마우스 올리면 정보 표시되게 시도
                            checkboxGroupInput(inputId="selectministry",
                                               "Select",
                                               choices = levels(data$ministry),

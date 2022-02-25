@@ -1,0 +1,304 @@
+---
+title: "Project1"
+author: "mjng"
+date: '2022 2 24 '
+output: html_document
+---
+# Project 1. Titanic
+```{r setup, include=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(treemap)
+library(dplyr)
+library(car)
+library(skimr)
+library(caret)
+library(ROCR)
+library(sqldf)
+```
+
+<br><br>
+
+## 데이터 불러오기 + 데이터 구조파악
+```{r}
+train = read.csv('C:/R_workspace/train.csv', header=T)
+test = read.csv('C:/R_workspace/train.csv', header=T)
+
+skim(train)
+skim(test)
+
+```
+age 열에만 177개의 결측치가 있음
+<br><br>
+
+## 데이터 전처리
+
+```{r}
+
+# 나이 결측값은 평균값으로
+train[is.na(train$Age),]$Age = as.integer(mean(train$Age,na.rm=TRUE))
+test[is.na(test$Age),]$Age = as.integer(mean(test$Age,na.rm=TRUE))
+
+#Survived열 0>>dead, 1>>survived
+train$Survived = factor(train$Survived, levels=c(0:1), labels=c('dead', 'survived'))
+test$Survived = factor(test$Survived, levels=c(0:1), labels=c('dead', 'survived'))
+
+#Pclass열 1>>1등석, 2>>2등석, 3>>3등석
+train$Pclass = factor(train$Pclass, levels=c(1:3), labels=c('1등석', '2등석', '3등석'))
+test$Pclass = factor(test$Pclass, levels=c(1:3), labels=c('1등석', '2등석', '3등석'))
+
+#Embarked열 ""값 제거
+train = train[train$Embarked != "", ]
+test = test[train$Embarked != "", ]
+```
+
+<br><br> 
+
+## EDA(탐색적 자료분석)
+
+```{r}
+#좌석클래스와 생존율
+data_pclass_cnt = train %>% 
+                  group_by(Survived, Pclass) %>% 
+                  summarise(count=n())
+data_pclass_cnt
+
+ggplot(data=data_pclass_cnt, aes(x=Pclass, y=count, fill=Survived)) +
+  geom_bar(alpha=0.5, stat='identity') +
+  geom_text(aes(label=count), size=5, position=position_stack(vjust=0.5))
+  ggtitle('Seat class vs Survived')
+  
+```
+
+```{r}
+#성별과 생존율
+data_sex_cnt = train %>% 
+                group_by(Sex, Survived) %>% 
+                summarise(count=n())
+data_sex_cnt
+
+treemap(data_sex_cnt, index=c('Sex', 'Survived'),
+        vSize='count',
+        type='index')
+```
+
+```{r}
+#운임가격과 생존율
+ggplot(train, aes(Survived, Fare)) +
+  geom_jitter(col='gray') + 
+  geom_boxplot(alpha=0.5) +
+  ggtitle("Fare vs Survived")
+```
+
+```{r}
+#나이대와 생존율
+ggplot(data=train, aes(Age, fill = Survived)) +
+  geom_density(alpha = 0.3) +
+  ggtitle("Age vs Survived")
+```
+
+```{r}
+#탑승위치와 생존율
+
+data_embarked_cnt = train %>% 
+                group_by(Embarked, Survived) %>% 
+                summarise(count=n())
+
+data_embarked_cnt
+
+
+pie(data_embarked_cnt$count, 
+    labels=c('C-dead', 'C-survived', 'Q-dead', 'Q-survived',
+             'S-dead', 'S-survived'))
+```
+
+
+```{r}
+
+#형제/자매 수와 생존율
+ggplot(data=train) +
+  geom_bar(mapping=aes(x=SibSp, fill=Survived)) +
+  labs(title="SibSp vs Survived")
+
+#부모/자녀 수와 생존율
+ggplot(data=train) +
+  geom_bar(mapping=aes(x=Parch, fill=Survived)) +
+  labs(title="Parch vs Survived")
+
+
+```
+
+
+<br><br>
+
+##로지스틱 회귀분석
+```{r}
+train_model<-glm(Survived ~ Pclass + Sex + Age + SibSp + Parch + Fare, data=train,family="binomial")
+
+summary(train_model)
+```
+
+
+```{r}
+par(mfrow=c(2,2))
+plot(train_model)
+```
+residuals vs fitted의 y축: 잔차<br>
+잔차가 0을 기준으로 좌우 분포가 균등하면 잔차들은 등분산성을 만족한다. >> 등분산성 만족<br><br>
+
+normal Q-Q plot에서는 잔차들이 정규분포를 잘 따르고 있는지 확인 가능하다.<br><br>
+
+scale-location 그래프의 y축: 표준화 잔차<br>
+0에서 멀리 떨어진 값은 이상치 >> 이상치 조금 있음<br><br>
+
+residuals vs leverage에서 이상치 확인 가능<br>
+cook's distance : 1을 넘어가면 관측치를 영향점으로 판단<br><br>
+
+- 변수별로 살펴보자
+```{r}
+logit_pclass = glm(Survived ~ Pclass, data=train, family='binomial')
+
+par(mfrow=c(2,2))
+plot(logit_pclass)
+```
+
+
+
+
+```{r}
+logit_sex = glm(Survived ~ Sex, data=train, family='binomial')
+
+par(mfrow=c(2,2))
+plot(logit_sex)
+```
+
+```{r}
+logit_age = glm(Survived ~ Age, data=train, family='binomial')
+
+par(mfrow=c(2,2))
+plot(logit_age)
+```
+
+```{r}
+logit_sibsp = glm(Survived ~ SibSp, data=train, family='binomial')
+
+par(mfrow=c(2,2))
+plot(logit_sibsp)
+```
+
+
+```{r}
+logit_parch = glm(Survived ~ Parch, data=train, family='binomial')
+
+par(mfrow=c(2,2))
+plot(logit_parch)
+```
+
+
+```{r}
+logit_fare = glm(Survived ~ Fare, data=train, family='binomial')
+
+par(mfrow=c(2,2))
+plot(logit_fare)
+```
+
+<br><br>
+오즈비
+```{r}
+train_model2 = glm(Survived ~ Pclass + Sex + Age + I(Age^2) + SibSp + Parch + Pclass*Sex, data = train, family=binomial(link="logit"))
+
+exp(coef(train_model2))
+```
+
+
+
+<br><br>
+
+## 회귀 모델을 통해 종속변수의 값을 예측
+```{r}
+train_model2 = glm(Survived ~ Pclass + Sex + Age + I(Age^2) + SibSp + Parch + Pclass*Sex, data = train, family="binomial")
+
+train_predict = predict(train_model2, newdata = test, type = "response")
+
+summary(train_predict)
+head(train_predict)
+
+```
+
+<br><br>
+검증 $ 혼동행렬
+<br><br>
+- fpr(false positive rate FP-rate) : 거짓값을 참으로 잘못 판단할 확률<br>
+- spr(specificity rate, 특이도) : 1-fpr,거짓값을 거짓으로 판단할 확률<br>
+- tpr(true positive rate, 민감도) : 참값을 참으로 판단할 확률,
+
+```{r}
+pr = prediction(train_predict, test$Survived)
+prf = performance(pr, measure='tpr', x.measure='fpr')
+
+plot(prf)
+
+```
+
+<br><br>
+```{r}
+#성능을 최적화하기 위해 cut-off value
+#cut off value와 민감도와 FP-rate 값으로 구성된 데이터프레임 만들기
+cutoffs = data.frame(cut = prf@alpha.values[[1]],
+                     fpr = prf@x.values[[1]],
+                     tpr = prf@y.values[[1]])
+
+head(cutoffs)
+```
+<br><br>
+```{r}
+# 민감도 + 특이도의 값이 최대화 되는 cutoff value 찾기
+# 무엇이 중요한 가에 따라 선택은 달라진다.
+
+cutoffs$sum <- cutoffs$tpr + (1 - cutoffs$fpr)
+cutoffs <- arrange(cutoffs, desc(sum))
+head(cutoffs, 10)
+```
+
+```{r}
+cutoff.1 <- ifelse(train_predict >= 0.5, 'survived', 'dead')
+cutoff.2 <- ifelse(train_predict >= 0.47, 'survived', 'dead')
+summary(cutoff.1)
+summary(cutoff.2)
+```
+
+
+```{r}
+table(test$Survived)
+table(test$Survived, cutoff.1)
+table(test$Survived, cutoff.2)
+```
+
+
+```{r}
+# 수정된 부분 : confusionMatrix(예측값, 실제값)으로 실행
+confusionMatrix(as.factor(cutoff.1), test$Survived)
+mean(as.factor(cutoff.1) == test$Survived)
+
+print("-----------------------------------------------")
+
+confusionMatrix(as.factor(cutoff.2), test$Survived)
+mean(as.factor(cutoff.2) == test$Survived)
+```
+
+
+```{r}
+# AUC를 이용하여 변수 변경, 모델 변경후 비교
+# 곡선 하부 면적
+auc <- performance(pr, measure = "auc")
+auc@y.values[[1]]
+```
+
+
+```{r}
+library(Epi)
+ROC(train_predict, test$Survived)
+```
+
+<br><br><br><br><br>
+

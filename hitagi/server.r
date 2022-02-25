@@ -5,8 +5,18 @@ library(forcats)
 library(tidyverse)
 library(hrbrthemes)
 library(viridis)
+library(showtext)
+# install.packages("showtext")
+# 틈틈히 리팩토링 해보겠습니다...!
 
 server <- function(input, output) {
+  
+  require(showtext)
+  
+  font_add_google(name='Nanum Gothic',
+                  regular.wt = 400, bold.wt = 700)
+  showtext_auto()
+  showtext_opts(dpi = 112)
   
   output$new_sal_box <- renderInfoBox({
     infoBox(
