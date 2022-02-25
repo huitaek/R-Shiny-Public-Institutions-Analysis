@@ -1,9 +1,11 @@
 library(readxl)
 
-data <- read.csv("./data/gonggiup.csv", na.strings = c("", 0, " ", NA))
+# 데이터셋 불러온뒤에 Run App 실행
+data <- read.csv("hitagi/data/gonggiup.csv", na.strings = c("", 0, " ", NA))
 data[data == 0] <- NA
 data$ministry = as.factor(data$ministry)
 data$gongtype = as.factor(data$gongtype)
+
 
 # str(data)
 # 

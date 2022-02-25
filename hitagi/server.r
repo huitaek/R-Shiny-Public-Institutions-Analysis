@@ -6,11 +6,15 @@ library(tidyverse)
 library(hrbrthemes)
 library(viridis)
 library(showtext)
-# install.packages("showtext")
-# 틈틈히 리팩토링 해보겠습니다...!
+library(fmsb)
+
+# 틈틈히 리팩토링 해보겠습니다...! + 샤이니 퍼블리싱 시도
+# Hitagi.R에서 데이터셋 불러온 뒤 실행해야합니다. 이것도 해결해보겠습니다.
 
 server <- function(input, output) {
+
   
+  # Shiny 퍼블리싱 안되는게 폰트 탓인가 해서 폰트 설정 시도.
   require(showtext)
   
   font_add_google(name='Nanum Gothic',
@@ -264,7 +268,7 @@ server <- function(input, output) {
   output$table1 <- renderDataTable({
   datanew <- subset(data, year==input$years)
   datanew
-  }, options = list(aLengthMenu = c(5),
+  }, options = list(aLengthMenu = c(5), # 5 이상으로 표시되면 박스 뚫고나감.
                     iDisplayLength = 5))
 }
 
